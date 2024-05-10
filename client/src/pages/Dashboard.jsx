@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { showAlert } from "../static/alert";
 import UploadedItem from "./UploadedItem";
 
-const BASE_URL = "http://localhost:3001";
+const BASE_URL = "https://booth-server.vercel.app";
 
 function Dashboard() {
   const { user } = useUser();
@@ -26,7 +26,6 @@ function Dashboard() {
   // Handle item selection
   const handleItemSelect = (item) => {
     setSelectedItem(item);
-    setViewModalOpen(true);
   };
 
   const handleFileChange = (event) => {
