@@ -1,5 +1,5 @@
 // Import necessary components and hooks
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useUser, UserButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "../static/alert";
@@ -78,6 +78,7 @@ function Dashboard() {
             multiple
             onChange={handleFileChange}
             className="hidden"
+            accept="image/*"
           />
           {/* Button to trigger file selection */}
           <button
