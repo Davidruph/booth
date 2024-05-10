@@ -14,7 +14,7 @@ app.use(express.json());
 // Multer storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "public/uploads/"); // Adjust destination path
+    cb(null, "./uploads/"); // Adjust destination path
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
