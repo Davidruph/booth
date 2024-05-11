@@ -14,7 +14,7 @@ app.use(express.json());
 // Multer storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "public/uploads/"); // Adjust destination path
+    cb(null, "gallery/"); // Adjust destination path
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Handle file upload endpoint
-app.post("api/v1/upload", upload.array("files"), (req, res) => {
+app.post("/upload", upload.array("files"), (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).send("No files were uploaded.");
   }
@@ -37,12 +37,12 @@ app.post("api/v1/upload", upload.array("files"), (req, res) => {
 app.use(express.static(path.join(__dirname, "public")));
 
 // Endpoint to list image files in the 'uploads' folder
-app.get("api/v1/images", async (req, res) => {
+app.get("/images", async (req, res) => {
   try {
     const files = await fs.readdir(path.join(__dirname, "public/uploads"));
     const imageUrls = files
       .filter((file) => file.match(/\.(jpg|jpeg|png|gif)$/i))
-      .map((file) => `/uploads/${file}`);
+      .map((file) => `/gallery/${file}`);
     res.json(imageUrls);
   } catch (error) {
     console.error("Error reading directory:", error);
