@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { showAlert } from "../static/alert";
 import UploadedItem from "./UploadedItem";
 
-const BASE_URL = "https://booth-server.vercel.app";
+const BASE_URL = "https://booth-server.vercel.app/api/v1";
 
 function Dashboard() {
   const { user } = useUser();

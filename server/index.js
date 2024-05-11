@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Handle file upload endpoint
-app.post("/upload", upload.array("files"), (req, res) => {
+app.post("api/v1/upload", upload.array("files"), (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).send("No files were uploaded.");
   }
@@ -37,7 +37,7 @@ app.post("/upload", upload.array("files"), (req, res) => {
 app.use(express.static(path.join(__dirname, "public")));
 
 // Endpoint to list image files in the 'uploads' folder
-app.get("/images", async (req, res) => {
+app.get("api/v1/images", async (req, res) => {
   try {
     const files = await fs.readdir(path.join(__dirname, "public/uploads"));
     const imageUrls = files
