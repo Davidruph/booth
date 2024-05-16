@@ -78,7 +78,15 @@ function SignupPage() {
                 />
 
                 <button className="auth-btn w-full mt-3" type="submit">
-                  {submitting ? <Loader /> : "Log in"}
+                  {submitting ? (
+                    <span className="loading-dots">
+                      <span className="loading-dots-dot"></span>
+                      <span className="loading-dots-dot"></span>
+                      <span className="loading-dots-dot"></span>
+                    </span>
+                  ) : (
+                    "Log in"
+                  )}
                 </button>
               </form>
             )}

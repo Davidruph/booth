@@ -1,4 +1,6 @@
 // Defining the Gallery Schema
+const mongoose = require("mongoose");
+
 const gallerySchema = new mongoose.Schema(
   {
     images: [

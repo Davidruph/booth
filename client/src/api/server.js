@@ -1,12 +1,13 @@
 import axios from "axios";
 
-//USER AND AUTH ROUTES
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-//SIGNIN
+// USER AND AUTH ROUTES
+
+// SIGNIN
 export const signin = (user) => {
-  // API call to sign in a user
   return axios
-    .post("http://localhost:3001/api/signin", JSON.stringify(user), {
+    .post(`${API_BASE_URL}/signin`, JSON.stringify(user), {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -20,11 +21,10 @@ export const signin = (user) => {
     });
 };
 
-//SIGNUP
+// SIGNUP
 export const signup = (user) => {
-  // API call to sign up a user
   return axios
-    .post("http://localhost:3001/api/signup", JSON.stringify(user), {
+    .post(`${API_BASE_URL}/signup`, JSON.stringify(user), {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -39,23 +39,21 @@ export const signup = (user) => {
     });
 };
 
-//SETTING THE JWT TOKEN IN USER'S BROWSER
+// SETTING THE JWT TOKEN IN USER'S BROWSER
 export const authenticate = (data, next) => {
-  // Storing JWT token in user's browser
   if (typeof window !== "undefined") {
     localStorage.setItem("jwt", JSON.stringify(data));
     next();
   }
 };
 
-//SIGNOUT -> REMOVING JWT TOKEN
+// SIGNOUT -> REMOVING JWT TOKEN
 export const signout = (next) => {
-  // Removing JWT token upon signout
   if (typeof window !== "undefined") {
     localStorage.removeItem("jwt");
 
     axios
-      .get("http://localhost:3001/api/signout")
+      .get(`${API_BASE_URL}/signout`)
       .then((response) => {
         console.log(response.data);
         next();
@@ -64,9 +62,8 @@ export const signout = (next) => {
   }
 };
 
-//VALIDATION IF USER IS SIGNED IN
+// VALIDATION IF USER IS SIGNED IN
 export const isAuthenticated = () => {
-  // Checking if the user is authenticated
   if (typeof window === "undefined") {
     return false;
   }

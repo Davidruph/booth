@@ -6,10 +6,11 @@ import { MdOutlineCancel } from "react-icons/md";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { isAuthenticated, signout } from "../api/server";
 
-const BASE_URL = "https://booth-server.vercel.app";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function Dashboard() {
   const authenticatedUser = isAuthenticated();
+
   const navigate = useNavigate();
 
   const onSignout = () => {
@@ -27,16 +28,14 @@ function Dashboard() {
 
   const handleTagInputChange = (e) => {
     const { value } = e.target;
-    // Check if the input ends with a comma or space
     if (value.endsWith(",") || value.endsWith(" ")) {
-      // Trim the input and add the tag to the tags array
-      const newTag = value.trim().replace(",", ""); // Remove the comma
+      const newTag = value.trim().replace(",", "");
       if (newTag !== "") {
         setTags([...tags, newTag]);
-        setTagInput(""); // Clear the input field
+        setTagInput("");
       }
     } else {
-      setTagInput(value); // Update the input field value
+      setTagInput(value);
     }
   };
 
@@ -48,7 +47,6 @@ function Dashboard() {
     setSelectedFiles(selectedFiles.filter((image) => image !== item));
   };
 
-  // Handle item selection
   const handleItemSelect = (item) => {
     setSelectedItem(item);
   };
@@ -69,7 +67,6 @@ function Dashboard() {
       return;
     }
 
-    // Validate each tag
     for (const tag of tags) {
       if (!tag.trim()) {
         showAlert("", "Tags cannot be empty.", "error");
@@ -81,23 +78,31 @@ function Dashboard() {
     selectedFiles.forEach((file) => {
       formData.append("files", file);
     });
-
-    // Append each tag separately to the form data
-    tags.forEach((tag, index) => {
-      formData.append(`tags[${index}]`, tag);
+    tags.forEach((tag) => {
+      formData.append("tags[]", tag);
     });
 
+    const jwtToken = JSON.parse(localStorage.getItem("jwt")).token;
+
     try {
-      const response = await fetch(`${BASE_URL}/upload`, {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${jwtToken}`, // Include the token in the request headers
+        },
       });
-      // const data = await response.text();
+
+      if (!response.ok) {
+        throw new Error("Failed to upload files.");
+      }
+
       showAlert("", "Files uploaded successfully", "success");
       setSelectedFiles([]);
       setTags([]);
     } catch (error) {
       console.error("Error uploading files:", error);
+      showAlert("", "Error uploading files.", "error");
     }
   };
 
@@ -123,13 +128,12 @@ function Dashboard() {
           Go to Gallery
         </Link>
       </header>
-      <h1 className="flex justify-center text-4xl pb-5 pt-5">
-        Hello, {authenticatedUser.user.name} Upload Images here
+      <h1 className="flex justify-center text-4xl pb-5 pt-5 text-center">
+        Hello, {authenticatedUser.user.name} <br /> Upload Images here
       </h1>
 
       <div className="flex flex-col flex-grow justify-center items-center pb-20">
         <div className="flex justify-center">
-          {/* Hidden file input */}
           <input
             ref={fileInputRef}
             type="file"
@@ -138,7 +142,6 @@ function Dashboard() {
             className="hidden"
             accept="image/*"
           />
-          {/* Button to trigger file selection */}
           <button
             onClick={handleSelectFilesClick}
             className="border p-2 rounded-md w-auto cursor-pointer"
@@ -147,7 +150,6 @@ function Dashboard() {
           </button>
         </div>
         <div className="uploaded-items-container p-4 border border-gray-200 rounded-md max-h-80 overflow-x-auto mt-4 flex flex-shrink-0">
-          {/* Render UploadedItem components */}
           {selectedFiles.map((item, index) => (
             <UploadedItem
               key={index}
@@ -157,7 +159,6 @@ function Dashboard() {
             />
           ))}
         </div>
-        {/* Tags input */}
         <div className="px-10 flex flex-col justify-center items-center">
           <div className="flex flex-wrap gap-2 mt-4">
             {tags.map((tag, index) => (
@@ -183,7 +184,6 @@ function Dashboard() {
             className="border border-white rounded-md h-12 w-[390px] p-2 mt-4 text-white bg-black"
           />
         </div>
-        {/* Button to trigger file upload */}
         <button
           onClick={handleFileUpload}
           className="btn-primary mt-5 border p-3 w-auto rounded-md flex items-center gap-2"
