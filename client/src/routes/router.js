@@ -1,3 +1,4 @@
 export const INDEX = "/";
-export const WELCOME = "/dashboard";
+export const SIGNUP = "/signup";
+export const LOGIN = "/login";
 export const GALLERY = "/gallery";

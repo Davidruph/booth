@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes dotPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.loading-dots {
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+}
+
+.loading-dots-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 3px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: dotPulse 1.4s infinite alternate;
+}
+
+.loading-dots-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}

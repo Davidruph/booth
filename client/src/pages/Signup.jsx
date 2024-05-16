@@ -4,12 +4,15 @@ import validate from "validate.js";
 import { showAlert } from "../static/alert";
 import { Link, useNavigate } from "react-router-dom";
 import { TextInput, PasswordInput, Loader } from "../components";
-import { signin, authenticate } from "../api/server";
+import { signup } from "../api/server";
 
 const constraints = {
   email: {
     presence: true,
     email: true,
+  },
+  name: {
+    presence: true,
   },
   password: {
     presence: true,
@@ -19,19 +22,17 @@ const constraints = {
   },
 };
 
-function LoginPage() {
+function SignupPage() {
   const navigate = useNavigate();
 
   const onSubmit = async (values) => {
-    signin(values)
+    signup(values)
       .then((data) => {
         if (data.error) {
           showAlert("", `${data.error}`, "error");
         } else {
-          authenticate(data, () => {
-            showAlert("", "Login successfully", "success");
-            navigate("/");
-          });
+          showAlert("", "sign up successfull", "success");
+          navigate("/login");
         }
       })
       .catch();
@@ -53,6 +54,14 @@ function LoginPage() {
             validate={validateForm}
             render={({ handleSubmit, form, submitting }) => (
               <form onSubmit={handleSubmit}>
+                <TextInput
+                  label="Full Name"
+                  name="name"
+                  type="text"
+                  placeholder="John Doe"
+                  form={form}
+                />
+
                 <TextInput
                   label="Email"
                   name="email"
@@ -76,9 +85,9 @@ function LoginPage() {
           />
         </div>
         <p className="signup-text pt-3 text-center">
-          Don’t have an account?{" "}
-          <Link to={"/signup"} className="spot text-black">
-            Sign Up
+          Already own an account?{" "}
+          <Link to={"/"} className="spot text-black">
+            Sign In
           </Link>
         </p>
       </div>
@@ -86,4 +95,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default SignupPage;

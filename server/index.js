@@ -1,55 +1,29 @@
 const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const cors = require("cors");
-const fs = require("fs");
-
 const app = express();
-const port = process.env.PORT || 3001; // Use PORT environment variable for Vercel
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const Authroute = require("./Routes/AuthRoute");
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Multer storage configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "gallery/"); // Adjust destination path
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
-
-// Handle file upload endpoint
-app.post("/upload", upload.array("files"), (req, res) => {
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).send("No files were uploaded.");
-  }
-
-  console.log(req.files);
-  res.send("Files uploaded successfully");
-});
-
-// Serve static files from the 'public' folder
-app.use(express.static(path.join(__dirname, "public")));
-
-// Endpoint to list image files in the 'uploads' folder
-app.get("/images", async (req, res) => {
-  try {
-    const files = await fs.readdir(path.join(__dirname, "public/uploads"));
-    const imageUrls = files
-      .filter((file) => file.match(/\.(jpg|jpeg|png|gif)$/i))
-      .map((file) => `/gallery/${file}`);
-    res.json(imageUrls);
-  } catch (error) {
-    console.error("Error reading directory:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
+mongoose
+  .connect(
+    "mongodb+srv://davidruph:j3AwYV50Rvx65OE1@booth.repqntv.mongodb.net/?retryWrites=true&w=majority&appName=booth"
+  )
+  .then(() => console.log("Database connected successfully"))
+  .catch((err) => console.log("Database connection failed", err));
+// Starting the Application
+const port = 3001;
 app.listen(port, () => {
-  console.log(`Server is listening at http://localhost:${port}`);
+  console.log(`App is running at ${port}`);
 });
+// Middleware Configuration
+// Body-parser to parse incoming request bodies as JSON
+app.use(bodyParser.json());
+// Cookie-parser for handling cookies
+app.use(cookieParser());
+// CORS for enabling Cross-Origin Resource Sharing
+app.use(cors());
+// Routing
+// Mounting authentication-related routes under the '/api' endpoint
+app.use("/api", Authroute);

@@ -1,36 +1,40 @@
-import React, { useEffect, useState } from "react";
+import { Link, useNavigate, Navigate } from "react-router-dom";
+import { isAuthenticated, signout } from "../api/server";
+import { showAlert } from "../static/alert";
 
 function ImageGrid() {
-  const [imageUrls, setImageUrls] = useState([]);
+  const authenticatedUser = isAuthenticated();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchImageUrls(); // Fetch image URLs when component mounts
-  }, []);
-
-  const fetchImageUrls = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/images"); // Endpoint to fetch image URLs
-      if (!response.ok) {
-        throw new Error("Failed to fetch images");
-      }
-      const data = await response.json();
-      setImageUrls(data); // Set image URLs in state
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    }
+  const onSignout = () => {
+    signout();
+    console.log("Signed out");
+    showAlert("", "Ended current session", "success");
+    navigate("/login");
   };
 
-  return (
-    <div className="image-grid">
-      {imageUrls.map((imageUrl, index) => (
-        <img
-          key={index}
-          src={imageUrl}
-          alt={`Image ${index}`}
-          className="grid-item"
-        />
-      ))}
-    </div>
+  return !authenticatedUser ? (
+    <Navigate to="/login" />
+  ) : (
+    <section className="min-h-screen bg-black text-white">
+      <header className="py-3 flex justify-between px-5">
+        <button
+          className="border p-2 text-white border-white bg-black rounded-md"
+          onClick={onSignout}
+        >
+          Logout
+        </button>
+        <Link
+          to="/"
+          className="border p-2 text-white border-white bg-black rounded-md"
+        >
+          Upload More
+        </Link>
+      </header>
+      <h1 className="flex justify-center text-[40px] pb-5 pt-5">
+        Image Gallery
+      </h1>
+    </section>
   );
 }
 
