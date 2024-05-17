@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 
 // Load environment variables from .env file
 dotenv.config();
+
 // SIGNUP: Registering a new user
 exports.signup = (req, res) => {
   const errors = validationResult(req);
@@ -73,13 +74,23 @@ exports.signout = (req, res) => {
   });
 };
 
-// Protected Routes
-exports.isSignedIn = jwt({
-  secret: process.env.JWT_SECRET,
-  userProperty: "auth",
-  algorithms: ["HS256"],
-});
+// Middleware to check if the user is signed in and handle JWT expiration
+exports.isSignedIn = (req, res, next) => {
+  jwt({
+    secret: process.env.JWT_SECRET,
+    userProperty: "auth",
+    algorithms: ["HS256"],
+  })(req, res, (err) => {
+    if (err && err.name === "UnauthorizedError") {
+      return res.status(401).json({
+        error: "Token has expired, please log in again.",
+      });
+    }
+    next();
+  });
+};
 
+// Middleware to check if the user is authenticated
 exports.isAuthenticated = (req, res, next) => {
   let checker = req.profile && req.auth && req.profile._id == req.auth._id;
   if (!checker) {

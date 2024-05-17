@@ -1,5 +1,5 @@
 const express = require("express");
-var router = express.Router();
+const router = express.Router();
 const multer = require("multer");
 const Gallery = require("../models/GalleryModel");
 const authenticate = require("../middleware/middleware");
@@ -11,9 +11,30 @@ const {
   isSignedIn,
 } = require("../controllers/authController");
 
+const cloudinary = require("../config/cloudinaryConfig");
+
 // Multer setup for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+const uploadFilesAndGetUrls = async (files) => {
+  const urls = [];
+
+  for (const file of files) {
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream({ resource_type: "auto" }, (error, result) => {
+          if (error) reject(error);
+          resolve(result);
+        })
+        .end(file.buffer);
+    });
+
+    urls.push(result.secure_url);
+  }
+
+  return urls;
+};
 
 router.post(
   "/upload",
@@ -24,19 +45,10 @@ router.post(
     try {
       const tags = req.body["tags[]"] || req.body.tags; // Handle both array and single tag cases
       const files = req.files;
-      console.log(req);
 
       if (!files.length) {
         return res.status(400).send("No files uploaded.");
       }
-
-      // Mock function to simulate uploading files and getting URLs
-      const uploadFilesAndGetUrls = async (files) => {
-        // Replace with actual upload logic
-        return files.map(
-          (file, index) => `https://example.com/image${index}.jpg`
-        );
-      };
 
       const imageUrls = await uploadFilesAndGetUrls(files);
 
@@ -55,6 +67,17 @@ router.post(
   }
 );
 
+router.get("/media-files", isSignedIn, authenticate, async (req, res) => {
+  try {
+    // Find all Gallery documents
+    const galleries = await Gallery.find({});
+
+    res.json(galleries); // Send all Gallery documents as a JSON response
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // POST request for user signup
 router.post(
   "/signup",
@@ -66,6 +89,7 @@ router.post(
   ],
   signup // Call the signup function from the authController
 );
+
 // POST request for user signin
 router.post(
   "/signin",
@@ -76,10 +100,13 @@ router.post(
   ],
   signin // Call the signin function from the authController
 );
+
 // GET request for user signout
 router.get("/signout", signout);
+
 // Protected Route for testing
 router.get("/testroute", isSignedIn, (req, res) => {
   res.send("A protected route");
 });
+
 module.exports = router;

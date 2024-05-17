@@ -25,6 +25,7 @@ function Dashboard() {
   const fileInputRef = useRef(null);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTagInputChange = (e) => {
     const { value } = e.target;
@@ -82,7 +83,8 @@ function Dashboard() {
       formData.append("tags[]", tag);
     });
 
-    const jwtToken = JSON.parse(localStorage.getItem("jwt")).token;
+    const jwtToken = JSON.parse(localStorage.getItem("jwt")).token || "";
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(`${API_BASE_URL}/upload`, {
@@ -93,16 +95,24 @@ function Dashboard() {
         },
       });
 
+      if (response.status === 401) {
+        showAlert("Session expired", "Please log in again", "error");
+        navigate("/login");
+        return;
+      }
+
       if (!response.ok) {
         throw new Error("Failed to upload files.");
       }
 
-      showAlert("", "Files uploaded successfully", "success");
+      showAlert("", "Images uploaded successfully", "success");
       setSelectedFiles([]);
       setTags([]);
     } catch (error) {
       console.error("Error uploading files:", error);
       showAlert("", "Error uploading files.", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -187,8 +197,9 @@ function Dashboard() {
         <button
           onClick={handleFileUpload}
           className="btn-primary mt-5 border p-3 w-auto rounded-md flex items-center gap-2"
+          disabled={isSubmitting}
         >
-          Upload Images
+          {isSubmitting ? "Uploading Images.." : "Upload Images"}
           <IoCloudUploadOutline />
         </button>
       </div>
