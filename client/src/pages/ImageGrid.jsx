@@ -145,7 +145,7 @@ function ImageGrid() {
             onChange={(e) => setSelectedTag(e.target.value)}
             className="border-white bg-black text-white h-150 border"
           >
-            <option value="">Select a tag</option>
+            <option value="">All Tags</option>
             {images
               .flatMap((photo) => photo.tags)
               .filter((tag, index, self) => self.indexOf(tag) === index)
